@@ -1,0 +1,256 @@
+.page-trips .trip-page {
+  padding: clamp(2.2rem, 6vw, 4.5rem) 0 4rem;
+}
+
+.page-trips h1 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(2.6rem, 7vw, 5.2rem);
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+}
+
+.lede {
+  max-width: 40rem;
+  color: var(--ink-dim);
+  margin: 1rem 0 0;
+}
+
+.trip-panel,
+.trip-status,
+.trip-card,
+.settings,
+.paste {
+  border-top: 1px solid var(--line);
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+}
+
+.stepper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1rem;
+  list-style: none;
+  padding: 0;
+  margin: 1.4rem 0;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+.stepper .is-current {
+  color: var(--accent-hot);
+}
+
+.stepper .is-done {
+  color: var(--ink-dim);
+}
+
+.field,
+.field-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0.8rem 0;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+.field.inline {
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+input,
+textarea {
+  font: inherit;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink);
+  background: var(--bg-raised);
+  border: 1px solid var(--line-strong);
+  padding: 0.65rem 0.75rem;
+  width: min(100%, 28rem);
+}
+
+textarea {
+  width: min(100%, 42rem);
+  font-family: var(--sans);
+  font-size: 0.95rem;
+}
+
+.choices {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.choices legend {
+  font-family: var(--sans);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-dim);
+  margin-bottom: 0.8rem;
+}
+
+.choice {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.8rem;
+  align-items: start;
+  border: 1px solid var(--line);
+  padding: 0.85rem 0.9rem;
+  font-family: var(--sans);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink);
+}
+
+.choice strong {
+  display: block;
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-weight: 400;
+}
+
+.choice small {
+  color: var(--ink-mute);
+}
+
+.choice input {
+  width: auto;
+  margin-top: 0.35rem;
+  accent-color: var(--accent);
+}
+
+.presets,
+.form-actions,
+.people {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.field-help,
+.form-note,
+.empty,
+.res-meta,
+.trip-when,
+.res-when {
+  color: var(--ink-mute);
+  font-size: 0.92rem;
+}
+
+.people {
+  margin: 1.4rem 0;
+}
+
+.person {
+  appearance: none;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--ink-dim);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.45rem 0.7rem;
+  cursor: pointer;
+}
+
+.person.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.trip-status p {
+  margin: 0.2rem 0;
+}
+
+.status-label {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.trip-lists h2,
+.paste h2,
+.settings summary {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  letter-spacing: -0.03em;
+}
+
+.settings summary {
+  cursor: pointer;
+  font-size: 1.4rem;
+}
+
+.trip-groups {
+  display: grid;
+  gap: 1rem;
+}
+
+.trip-card h3,
+.res h4 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+
+.trip-card h3 {
+  font-size: 1.7rem;
+}
+
+.res-list {
+  list-style: none;
+  margin: 0.8rem 0 0;
+  padding: 0;
+}
+
+.res {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.res-kind {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.res.is-cancelled h4,
+.res.is-cancelled .res-when {
+  text-decoration: line-through;
+  color: var(--ink-mute);
+}
+
+.trip-card header p {
+  margin: 0.25rem 0 0;
+}
+
+@media (max-width: 700px) {
+  .res {
+    flex-direction: column;
+  }
+}

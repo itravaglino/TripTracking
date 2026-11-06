@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" data-page="trips">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Trips — Ignacio Travaglino</title>
+    <meta
+      name="description"
+      content="Read flight, lodging, transport, and plan confirmations from Gmail, on a schedule you set per person."
+    />
+    <meta name="author" content="Ignacio Travaglino" />
+    <meta name="theme-color" content="#13110f" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Trips — Ignacio Travaglino" />
+    <meta
+      property="og:description"
+      content="Read flight, lodging, transport, and plan confirmations from Gmail, on a schedule you set per person."
+    />
+    <meta property="og:image" content="/og.png" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="stylesheet" href="/src/fonts.css" />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <link rel="stylesheet" href="/src/trips/trips.css" />
+    <script>
+      (function () {
+        var lang = "en";
+        try {
+          var stored = localStorage.getItem("it-lang");
+          if (stored === "es" || stored === "en") lang = stored;
+        } catch (e) {}
+        document.documentElement.lang = lang;
+        document.documentElement.dataset.lang = lang;
+        document.documentElement.classList.add("js");
+      })();
+    </script>
+  </head>
+  <body class="page-trips">
+    <a class="skip-link" href="#contenido" data-i18n="skip">Skip to content</a>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="mark" href="/">
+          <span class="mark-it">IT</span>
+          <span class="mark-name">Travaglino</span>
+        </a>
+        <div class="nav-cluster">
+          <nav data-i18n-aria="nav.primary" aria-label="Primary">
+            <ul class="nav-links">
+              <li><a href="/#trabajo" data-i18n="nav.work">Work</a></li>
+              <li><a href="/#experiencia" data-i18n="nav.experience">Experience</a></li>
+              <li><a href="/#formacion" data-i18n="nav.education">Education</a></li>
+              <li><a href="/cv/">CV</a></li>
+              <li><a href="/github/" data-i18n="nav.game">Git</a></li>
+              <li><a href="/trips/" aria-current="page" data-i18n="nav.trips">Trips</a></li>
+              <li><a href="/#contacto" data-i18n="nav.contact">Contact</a></li>
+            </ul>
+          </nav>
+          <div class="lang-switch" role="group" data-i18n-aria="nav.langGroup" aria-label="Language">
+            <button type="button" data-lang-switch="es" aria-pressed="false" data-i18n-aria="nav.langEs">ES</button>
+            <button type="button" data-lang-switch="en" aria-pressed="true" data-i18n-aria="nav.langEn">EN</button>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main id="contenido">
+      <div class="wrap trip-page">
+        <div id="trips-root"></div>
+        <noscript>
+          <p>This page needs JavaScript to read Gmail in the browser.</p>
+        </noscript>
+      </div>
+    </main>
+    <footer class="site-footer">
+      <div class="wrap">
+        <p data-i18n="footer">© Ignacio Travaglino</p>
+        <p data-i18n="colophon">Mail is read with Gmail’s read-only scope. The token stays in this browser and messages are not uploaded.</p>
+      </div>
+    </footer>
+    <script type="module" src="/src/trips/main.js"></script>
+  </body>
+</html>

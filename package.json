@@ -1,0 +1,21 @@
+{
+  "name": "trip-tracking",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Gmail reservation reader for travaglino.me/trips.",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 43148",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 43148",
+    "test": "node --test src/trips/*.test.js"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5"
+  },
+  "dependencies": {
+    "@fontsource-variable/fraunces": "^5.2.8",
+    "@fontsource/ibm-plex-mono": "^5.2.6",
+    "@fontsource/ibm-plex-sans": "^5.2.6"
+  }
+}
