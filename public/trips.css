@@ -1,0 +1,97 @@
+.trips-page { padding: clamp(1.6rem, 4vw, 3rem) 0 4rem; position: relative; z-index: 1; }
+.trips-head { display: grid; gap: 0.8rem; margin-bottom: 1.6rem; }
+.trips-layout { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; align-items: start; }
+.panel {
+  border: 1px solid var(--line);
+  background: rgba(27, 24, 21, 0.72);
+  padding: 1rem 1rem 1.1rem;
+}
+.panel h2, .trip-card h3, .reservation h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+.panel h2 { font-size: 1.45rem; }
+.field { display: grid; gap: 0.3rem; margin-top: 0.85rem; }
+.field span, .choice span, legend {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.field input, .field select {
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  padding: 0.55rem 0.65rem;
+}
+.choices { display: grid; gap: 0.45rem; margin: 0.8rem 0 0; padding: 0; border: 0; }
+.choice {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  color: var(--ink-dim);
+  font-size: 0.95rem;
+}
+.choice input { margin-top: 0.35rem; accent-color: var(--accent); }
+.choice strong { display: block; color: var(--ink); font-weight: 500; }
+.choice small { display: block; color: var(--ink-mute); }
+.presets { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.45rem; }
+.presets button, .filters button, .profile-switch button {
+  appearance: none;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--ink-dim);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+}
+.presets button[aria-pressed="true"], .filters button[aria-pressed="true"], .profile-switch button[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--bg);
+  background: var(--accent);
+}
+.actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+.notice, .error {
+  margin: 0.8rem 0 0;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--line-strong);
+  color: var(--ink-dim);
+  font-size: 0.92rem;
+}
+.error { border-color: var(--accent); color: var(--accent-hot); }
+.status-line { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; color: var(--ink-mute); font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.filters { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.9rem 0; }
+.trip-list { display: grid; gap: 1rem; }
+.trip-card { border-top: 1px solid var(--line); padding-top: 0.9rem; }
+.trip-card h3 { font-size: clamp(1.4rem, 2vw, 1.9rem); }
+.reservation {
+  display: grid;
+  grid-template-columns: 7.2rem minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--line);
+}
+.tag {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.reservation p, .meta { margin: 0.2rem 0 0; color: var(--ink-dim); }
+.meta { font-size: 0.92rem; }
+.sample-flag { color: var(--ink-mute); font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.profile-switch { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.8rem; }
+.empty { color: var(--ink-mute); }
+.stack { display: grid; gap: 1rem; }
+@media (max-width: 860px) {
+  .trips-layout, .reservation { grid-template-columns: 1fr; }
+}

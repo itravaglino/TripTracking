@@ -1,0 +1,14 @@
+{
+  "name": "trip-tracking",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Lee reservas de Gmail y las muestra en travaglino.me/trips.",
+  "scripts": {
+    "start": "node --experimental-sqlite server.js",
+    "test": "node --experimental-sqlite --test lib/parse.test.js lib/server.test.js"
+  },
+  "engines": {
+    "node": ">=22.5"
+  }
+}

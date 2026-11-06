@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Trips — Ignacio Travaglino</title>
+    <meta name="description" content="Read flight, lodging, transport, plan, and event reservations from Gmail on a schedule you choose." />
+    <meta name="theme-color" content="#13110f" />
+    <meta name="referrer" content="no-referrer" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; base-uri 'self'; form-action 'self'" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/base.css" />
+    <link rel="stylesheet" href="/trips.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#trips-root">Skip to content</a>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="mark" href="https://travaglino.me/">
+          <span class="mark-it">IT</span>
+          <span class="mark-name">Travaglino</span>
+        </a>
+        <div class="nav-cluster">
+          <nav aria-label="Primary">
+            <ul class="nav-links">
+              <li><a href="https://travaglino.me/#trabajo">Work</a></li>
+              <li><a href="https://travaglino.me/#experiencia">Experience</a></li>
+              <li><a href="https://travaglino.me/#formacion">Education</a></li>
+              <li><a href="https://travaglino.me/cv/">CV</a></li>
+              <li><a href="https://travaglino.me/github/">Git</a></li>
+              <li><a href="/" aria-current="page">Trips</a></li>
+              <li><a href="https://travaglino.me/#contacto">Contact</a></li>
+            </ul>
+          </nav>
+          <div class="lang-switch" role="group" aria-label="Language">
+            <button type="button" data-lang-switch="es" aria-pressed="false">ES</button>
+            <button type="button" data-lang-switch="en" aria-pressed="true">EN</button>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main class="trips-page">
+      <div class="wrap">
+        <div id="trips-root" data-api="/api"></div>
+      </div>
+    </main>
+    <footer class="site-footer">
+      <div class="wrap">
+        <p>© Ignacio Travaglino</p>
+        <p>Gmail is read with the readonly scope. Only the reservation fields stay on this server.</p>
+      </div>
+    </footer>
+    <script type="module" src="/trips-app.js"></script>
+  </body>
+</html>
