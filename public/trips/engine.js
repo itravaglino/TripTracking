@@ -100,10 +100,11 @@ export function parseMailboxMessage(message) {
     .map((node) => reservationFromLd(node, { subject, from, messageId }))
     .filter(Boolean)
     .slice(0, 20);
-  if (fromLd.length > 0) return dedupeParsed(fromLd);
+  const strongLd = fromLd.filter((item) => item.startsAt || item.confirmationCode);
+  if (strongLd.length > 0) return dedupeParsed(strongLd);
   const plain = text || htmlToText(html);
   const heuristic = reservationFromText(plain, { subject, from, messageId });
-  return heuristic ? [heuristic] : [];
+  return dedupeParsed([...(heuristic ? [heuristic] : []), ...fromLd]);
 }
 
 export function groupReservations(items) {
@@ -193,9 +194,7 @@ function reservationFromLd(node, context) {
   const category = categoryFor(node);
   if (!category) return null;
   const reserved = node.reservationFor && typeof node.reservationFor === "object" ? node.reservationFor : {};
-  const status = /cancel/i.test(String(node.reservationStatus || "")) || /cancel/i.test(context.subject)
-    ? "cancelled"
-    : "confirmed";
+  const status = isCancelled(`${node.reservationStatus || ""} ${context.subject}`) ? "cancelled" : "confirmed";
   const confirmationCode = clip(
     node.reservationNumber || node.confirmationNumber || reserved.reservationNumber || "",
     40,
@@ -264,7 +263,8 @@ function reservationFromLd(node, context) {
 
 function categoryFor(node) {
   const types = typesOf(node);
-  const fromReserved = categoryFromReserved(typesOf(node.reservationFor || {}));
+  const reserved = node.reservationFor && typeof node.reservationFor === "object" ? node.reservationFor : {};
+  const fromReserved = categoryFromReserved(typesOf(reserved));
   if (fromReserved) return fromReserved;
   for (const type of types) {
     if (LD_CATEGORY[type]) return LD_CATEGORY[type];
@@ -285,21 +285,26 @@ function categoryFromReserved(types) {
   return null;
 }
 
+function isCancelled(text) {
+  return /cancelad[oa]?|cancelaci[oó]n|\bcancel(?:led|ed)?\b|reembols/i.test(text);
+}
+
 function reservationFromText(plain, context) {
-  const text = `${context.subject}\n${plain}`.replace(/\s+/g, " ").trim();
+  const source = `${context.subject}\n${plain}`;
+  const text = source.replace(/\s+/g, " ").trim();
   if (text.length < 12) return null;
-  const cancelled = /cancelad|\bcancel/i.test(text);
+  const cancelled = isCancelled(text);
   const confirmation = matchCode(text);
-  const dates = findDates(`${context.subject}\n${plain}`);
+  const dates = findDates(source);
   const category = guessCategory(text);
+  const namedPlace = matchNamedPlace(source, category);
   if (!category || dates.length === 0) return null;
   if ((category === "flight" || category === "transport") && !confirmation && !matchFlight(text)) return null;
-  if ((category === "lodging" || category === "plan" || category === "event") && !confirmation && dates.length === 0) return null;
+  if ((category === "lodging" || category === "plan" || category === "event") && !confirmation && !namedPlace) return null;
 
   const flight = matchFlight(text);
-  const route = matchRoute(`${context.subject}\n${plain}`);
-  const party = matchParty(`${context.subject}\n${plain}`);
-  const namedPlace = matchNamedPlace(`${context.subject}\n${plain}`, category);
+  const route = matchRoute(source);
+  const party = matchParty(source);
   const item = {
     category,
     status: cancelled ? "cancelled" : "confirmed",
@@ -345,9 +350,10 @@ function guessCategory(text) {
 
 function matchCode(text) {
   const match = text.match(
-    /(?:c[oó]digo de reserva|localizador|pnr|confirmation(?:\s+code)?|record locator|booking reference|reserva)\s*[:#-]?\s*([A-Z0-9]{5,8})\b/i,
+    /(?:c[oó]digo de reserva|localizador|pnr|confirmation code|record locator|booking reference|reserva)\s*[:#-]?\s*([A-Z0-9]{5,8})\b|(?:confirmation)\s*[:#-]\s*([A-Z0-9]{5,8})\b/i,
   );
-  return match ? match[1].toUpperCase() : "";
+  const code = match?.[1] || match?.[2] || "";
+  return code ? code.toUpperCase() : "";
 }
 
 function matchFlight(text) {
@@ -359,10 +365,6 @@ function matchFlight(text) {
 }
 
 function matchRoute(text) {
-  const patterns = [
-    /salida:\s*([^\n]+?)\s+(\d{1,2}\s+de\s+[a-záéíóú]+)/i,
-    /(?:desde|from)\s+([A-Za-zÁÉÍÓÚáéíóúñÑ .()-]{3,40}?)\s+(?:a|to|hacia)\s+([A-Za-zÁÉÍÓÚáéíóúñÑ .()-]{3,40})/i,
-  ];
   const salida = text.match(/salida:\s*([^\n]+)/i);
   const llegada = text.match(/llegada:\s*([^\n]+)/i);
   if (salida || llegada) {
@@ -371,7 +373,7 @@ function matchRoute(text) {
       destination: cleanRouteStop(llegada?.[1] || ""),
     };
   }
-  const pair = text.match(patterns[1]);
+  const pair = text.match(/(?:desde|from)\s+([A-Za-zÁÉÍÓÚáéíóúñÑ .()-]{3,40}?)\s+(?:a|to|hacia)\s+([A-Za-zÁÉÍÓÚáéíóúñÑ .()-]{3,40})/i);
   if (!pair) return { origin: "", destination: "" };
   return { origin: clip(pair[1], 80), destination: clip(pair[2], 80) };
 }
@@ -387,7 +389,7 @@ function matchParty(text) {
 
 function matchNamedPlace(text, category) {
   if (category === "lodging") {
-    const match = text.match(/\b(hotel\s+[A-Za-zÁÉÍÓÚáéíóúñÑ0-9 .'-]{2,60})/i);
+    const match = text.match(/\b((?:hotel|hostal|airbnb|apartamento)\s+[A-Za-zÁÉÍÓÚáéíóúñÑ0-9 .'-]{2,60})/i);
     return match ? clip(match[1], 80) : "";
   }
   if (category === "event" || category === "plan") {
@@ -405,11 +407,32 @@ function findDates(text) {
     if (!month) continue;
     found.push(isoBuenosAires(Number(match[3]), month, Number(match[1]), Number(match[4] || 0), Number(match[5] || 0)));
   }
-  const iso = /\b(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/g;
+  const english = /\b([A-Za-z]{3,12})\.?\s+(\d{1,2}),?\s+(\d{4})(?:[^\d\n]{0,16}(\d{1,2}):(\d{2}))?/g;
+  for (const match of text.matchAll(english)) {
+    const month = MONTHS[match[1].toLowerCase()];
+    if (!month) continue;
+    found.push(isoBuenosAires(Number(match[3]), month, Number(match[2]), Number(match[4] || 0), Number(match[5] || 0)));
+  }
+  const englishDayFirst = /\b(\d{1,2})\s+([A-Za-z]{3,12})\.?\s+(\d{4})(?:[^\d\n]{0,16}(\d{1,2}):(\d{2}))?/g;
+  for (const match of text.matchAll(englishDayFirst)) {
+    const month = MONTHS[match[2].toLowerCase()];
+    if (!month) continue;
+    found.push(isoBuenosAires(Number(match[3]), month, Number(match[1]), Number(match[4] || 0), Number(match[5] || 0)));
+  }
+  const iso = /\b(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}:\d{2})(?::\d{2})?)?(Z|[+-]\d{2}:?\d{2})?/g;
   for (const match of text.matchAll(iso)) {
-    found.push(instant(`${match[1]}-${match[2]}-${match[3]}T${match[4] || "00"}:${match[5] || "00"}:00-03:00`));
+    const clock = `${match[2] || "00:00"}:00`;
+    found.push(instant(`${match[1]}T${clock}${normalizeZone(match[3])}`));
   }
   return found.filter(Boolean).slice(0, 4);
+}
+
+function normalizeZone(zone) {
+  if (!zone) return "-03:00";
+  if (zone === "Z") return "Z";
+  const compact = zone.match(/^([+-])(\d{2})(\d{2})$/);
+  if (compact) return `${compact[1]}${compact[2]}:${compact[3]}`;
+  return zone;
 }
 
 function isoBuenosAires(year, month, day, hour, minute) {

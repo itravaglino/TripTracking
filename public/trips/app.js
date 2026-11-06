@@ -40,6 +40,8 @@ const COPY = {
     upcoming: "Próximos",
     past: "Anteriores",
     empty: "Todavía no hay reservas en las categorías activas.",
+    on: "Sí",
+    off: "No",
     every: "Revisar el correo cada",
     last: "Última lectura",
     next: "Próxima lectura",
@@ -108,6 +110,8 @@ const COPY = {
     upcoming: "Upcoming",
     past: "Earlier",
     empty: "No reservations in the active categories yet.",
+    on: "On",
+    off: "Off",
     every: "Check mail every",
     last: "Last read",
     next: "Next read",
@@ -185,7 +189,7 @@ async function boot() {
     history.replaceState(null, "", location.pathname);
     if (state.mode !== "local") {
       const exchanged = await api("/api/auth/exchange", { method: "POST", json: { code } });
-      if (!exchanged.ok) state.notice = exchanged.data.error || "oauth_failed";
+      state.notice = exchanged.ok ? "" : exchanged.data.error || "oauth_failed";
     }
   }
   if (state.mode === "local") {
@@ -329,14 +333,7 @@ function setup(t) {
     el("div", { class: "panel" }, [
       el("h2", {}, [t.setupTitle]),
       el("p", { class: "lede" }, [t.setupLede]),
-      ...CATEGORIES.map((category) => el("button", {
-        class: "choice",
-        type: "button",
-        "aria-pressed": String(draft.track[category]),
-        onclick: () => toggleTrack(category),
-      }, [
-        el("span", {}, [el("strong", {}, [t.categories[category]]), el("span", {}, [` ${t.hints[category]}`])]),
-      ])),
+      ...CATEGORIES.map((category) => choiceButton(t, category, draft.track[category])),
     ]),
     el("form", { class: "panel", onsubmit: saveSetup }, [
       el("label", { for: "interval" }, [t.every]),
@@ -384,12 +381,7 @@ function banner(t) {
 
 function settingsPanel(t) {
   return el("form", { class: "panel", onsubmit: saveSetup }, [
-    ...CATEGORIES.map((category) => el("button", {
-      class: "choice",
-      type: "button",
-      "aria-pressed": String(state.viewer.track[category]),
-      onclick: () => toggleTrack(category),
-    }, [el("strong", {}, [t.categories[category]])])),
+    ...CATEGORIES.map((category) => choiceButton(t, category, state.viewer.track[category])),
     el("label", { for: "interval-edit" }, [t.every]),
     el("select", { id: "interval-edit", name: "interval" }, INTERVALS.map((minutes) => el("option", {
       value: String(minutes),
@@ -414,13 +406,34 @@ function sectionTrips(title, trips, t) {
   ]);
 }
 
+function choiceButton(t, category, pressed) {
+  return el("button", {
+    class: "choice",
+    type: "button",
+    "aria-pressed": String(pressed),
+    onclick: () => toggleTrack(category),
+  }, [
+    el("span", {}, [el("strong", {}, [t.categories[category]]), el("span", {}, [t.hints[category]])]),
+    el("em", { class: "switch" }, [pressed ? t.on : t.off]),
+  ]);
+}
+
 function reservation(item, t) {
-  const title = el("strong", { class: item.status === "cancelled" ? "cancelled" : "" }, [item.title]);
-  const bits = [item.provider, item.flightNumber, item.origin && item.destination ? `${item.origin} → ${item.destination}` : item.location, item.confirmationCode ? `${t.code} ${item.confirmationCode}` : "", item.party ? `${t.party} ${item.party}` : ""].filter(Boolean);
+  const route = item.origin && item.destination ? `${item.origin} → ${item.destination}` : "";
+  const place = !route && item.location && item.location !== item.title ? item.location : "";
+  const headline = route && item.title.includes("→")
+    ? item.title.split("·").slice(0, -1).join("·").trim() || item.title
+    : item.title;
+  const bits = [item.provider, item.flightNumber && !headline.includes(item.flightNumber) ? item.flightNumber : "", item.confirmationCode ? `${t.code} ${item.confirmationCode}` : "", item.party ? `${t.party} ${item.party}` : ""].filter(Boolean);
   return el("article", { class: "reservation" }, [
-    el("span", { class: "tag" }, [item.status === "cancelled" ? t.cancelled : t.categories[item.category] || item.category]),
-    el("div", {}, [title, el("p", {}, [bits.join(" · ")])]),
-    el("span", { class: "meta" }, [when(item.startsAt, t)]),
+    el("div", { class: "res-top" }, [
+      el("span", { class: "tag" }, [item.status === "cancelled" ? t.cancelled : t.categories[item.category] || item.category]),
+      el("span", { class: "meta" }, [when(item.startsAt, t)]),
+    ]),
+    el("h3", { class: item.status === "cancelled" ? "cancelled" : "" }, [headline]),
+    route ? el("p", { class: "route" }, [route]) : null,
+    place ? el("p", { class: "route" }, [place]) : null,
+    bits.length ? el("p", {}, [bits.join(" · ")]) : null,
   ]);
 }
 
@@ -457,6 +470,7 @@ function toggleTrack(category) {
   const next = { ...state.viewer.track, [category]: !state.viewer.track[category] };
   if (!CATEGORIES.some((key) => next[key])) return;
   state.viewer = { ...state.viewer, track: next };
+  if (state.filter !== "all" && !next[state.filter]) state.filter = "all";
   render();
 }
 
@@ -476,7 +490,9 @@ async function saveSetup(event) {
     const saved = await api("/api/settings", { method: "PUT", json: { ...settings, setupComplete: true } });
     if (!saved.ok) state.notice = saved.data.error || "forbidden";
     else {
+      state.notice = "";
       state.viewer = saved.data.viewer;
+      syncFilter();
       await loadReservations();
     }
   }
@@ -518,8 +534,10 @@ async function readNow() {
     const result = await api("/api/scan", { method: "POST", json: {} });
     if (!result.ok) state.notice = result.data.error || "rate_limited";
     else {
+      state.notice = "";
       state.viewer = result.data.viewer;
       state.reservations = result.data.reservations || [];
+      syncFilter();
     }
   }
   state.busy = false;
@@ -595,6 +613,10 @@ function loadLocal() {
 
 function persistLocal() {
   localStorage.setItem(LOCAL_KEY, JSON.stringify(state.viewer));
+}
+
+function syncFilter() {
+  if (state.filter !== "all" && state.viewer && !state.viewer.track[state.filter]) state.filter = "all";
 }
 
 function when(value, t) {

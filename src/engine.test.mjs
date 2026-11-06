@@ -66,6 +66,60 @@ test("reservations a few days apart in the same city form one trip", () => {
   assert.equal(trips[1].title.includes("Buenos Aires") || trips[1].items.some((item) => item.confirmationCode === "K7Q2PL"), true);
 });
 
+test("spanish cancellation wording, english dates and offsets stay attached to the reservation", () => {
+  const cancelled = parseMailboxMessage({
+    messageId: "cancel-es",
+    from: "Hotel Sol <reservas@hotelsol.example>",
+    subject: "Cancelación de su reserva en Hotel Sol",
+    text: "Le informamos de la cancelación de su estancia. Check-in: 15 de marzo de 2026. Código de reserva: SOL4412",
+    html: "",
+  });
+  assert.equal(cancelled[0].category, "lodging");
+  assert.equal(cancelled[0].status, "cancelled");
+  assert.equal(cancelled[0].startsAt, "2026-03-15T03:00:00.000Z");
+
+  const english = parseMailboxMessage({
+    messageId: "en-stay",
+    from: "Palma House <stay@palma.example>",
+    subject: "Your stay is confirmed",
+    text: "Check-in: March 15, 2026. Confirmation: HM7XK2. Hotel Palma, Madrid",
+    html: "",
+  });
+  assert.equal(english[0].category, "lodging");
+  assert.equal(english[0].confirmationCode, "HM7XK2");
+  assert.equal(english[0].startsAt, "2026-03-15T03:00:00.000Z");
+
+  const offset = parseMailboxMessage({
+    messageId: "offset-flight",
+    from: "United <reservas@united.example>",
+    subject: "Flight confirmation",
+    text: "Flight UA 123 from Miami to Madrid. Booking reference: ABCDEF. Departure 2026-06-01T14:30:00+02:00",
+    html: "",
+  });
+  assert.equal(offset[0].category, "flight");
+  assert.equal(offset[0].confirmationCode, "ABCDEF");
+  assert.equal(offset[0].startsAt, "2026-06-01T12:30:00.000Z");
+});
+
+test("plain itinerary is kept when the only json-ld block has no date", () => {
+  const items = parseMailboxMessage({
+    messageId: "mixed",
+    from: "Aerolíneas Argentinas <reservas@aerolineas.com.ar>",
+    subject: "Tu reserva está confirmada",
+    html: `<script type="application/ld+json">${JSON.stringify({
+      "@type": "FlightReservation",
+      reservationFor: { "@type": "Flight", airline: { name: "Aerolíneas" } },
+    })}</script>`,
+    text: `Pasajero: Ana Pérez
+Vuelo AR 1130
+Salida: Córdoba (COR) 4 de marzo de 2027 08:40
+Llegada: Buenos Aires (AEP) 4 de marzo de 2027 10:05
+Código de reserva: K7Q2PL`,
+  });
+  assert.equal(items[0].confirmationCode, "K7Q2PL");
+  assert.equal(items[0].startsAt, "2027-03-04T11:40:00.000Z");
+});
+
 test("a message without reservation signals is ignored", () => {
   const items = parseMailboxMessage({
     messageId: "newsletter",

@@ -22,7 +22,7 @@ export async function scanViewer(viewer: Viewer, manual: boolean): Promise<{ kep
     if (!locked[0]) return { kept: 0, seen: 0 };
     const messages = viewer.demo ? SAMPLE_MESSAGES : await realMessages(viewer);
     const parsed = messages.flatMap((message) => parseMailboxMessage(message));
-    const keptItems = filterByTrack(parsed, viewer.track).slice(0, 100);
+    const keptItems = filterByTrack(parsed, viewer.track).slice(0, 200);
     const existing = await sql<{ n: number }>("select count(*)::int as n from reservations where user_id = $1", [viewer.id]);
     const room = Math.max(0, 500 - Number(existing[0]?.n || 0));
     let kept = 0;
