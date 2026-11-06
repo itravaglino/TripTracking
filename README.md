@@ -2,7 +2,7 @@
 
 Cada persona crea un perfil, elige si quiere seguir vuelos, hospedaje, transporte, planes y eventos, y define cada cuánto se lee Gmail. El lector guarda solo los datos de la reserva (código, fechas, tramo, lugar, precio), no el cuerpo del correo.
 
-La pestaña del sitio está en [travaglino.me/trips](https://travaglino.me/trips). Ahí la lectura corre mientras la página está abierta. Este servidor hace la misma lectura con la pestaña cerrada.
+La pestaña del sitio está en [travaglino.me/trips](https://travaglino.me/trips). Ahí la lectura corre mientras la página está abierta, con los módulos de `public/` (`trips-app.js` y el lector). Este servidor hace la misma lectura con la pestaña cerrada.
 
 ## Servidor
 
